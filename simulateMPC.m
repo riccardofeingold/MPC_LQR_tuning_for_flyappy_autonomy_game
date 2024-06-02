@@ -5,21 +5,21 @@ Cd = params.model.Cd
 
 % LQR Testing
 Q = [
-    1000 0 0 0;
-    0  1 0 0;
+    1200 0 0 0;
+    0  500 0 0;
     0 0 1000 0;
-    0 0 0 1
+    0 0 0 5
 ];
 
 R = [
-   	1 0;
+   	0.001 0;
     0 0.001
 ];
 
-N = 30;
+N = 100;
 mpc = MPC(Q, R, N, params);
 
-SimHorizon = 100;
+SimHorizon = 200;
 x0 = [1 1 0 0]';
 x_ref = [2, 0, -2, 0]';
 x = zeros(4, SimHorizon + 1);

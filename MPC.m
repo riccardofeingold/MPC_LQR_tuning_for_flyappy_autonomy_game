@@ -16,7 +16,7 @@ classdef MPC
             X = sdpvar(repmat(params.model.nx, 1, N+1), repmat(1, 1, N+1));
             X0 = sdpvar(params.model.nx, 1);
 
-            constraints = [X{1} == X0];
+            constraints = [X{1} == X0, X{N+1} == zeros(params.model.nx, 1)];
             objective = 0;
 
             for k = 1:N
