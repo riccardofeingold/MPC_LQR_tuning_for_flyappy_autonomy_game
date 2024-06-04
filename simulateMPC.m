@@ -1,14 +1,21 @@
-params = generate_params();
-Ad = params.model.Ad
-Bd = params.model.Bd
-Cd = params.model.Cd
-
 % LQR Testing
+% Q = [
+%     1200 0 0 0;
+%     0  500 0 0;
+%     0 0 1000 0;
+%     0 0 0 5
+% ];
+% 
+% R = [
+%    	0.001 0;
+%     0 0.001
+% ];
+
 Q = [
-    1200 0 0 0;
-    0  500 0 0;
+    10 0 0 0;
+    0  0.0001 0 0;
     0 0 1000 0;
-    0 0 0 5
+    0 0 0 15
 ];
 
 R = [
@@ -16,25 +23,31 @@ R = [
     0 0.001
 ];
 
-N = 100;
+params = generate_params(Q, R);
+Ad = params.model.Ad
+Bd = params.model.Bd
+Cd = params.model.Cd
+
+N = 30;
 mpc = MPC(Q, R, N, params);
 
-SimHorizon = 200;
-x0 = [1 1 0 0]';
-x_ref = [2, 0, -2, 0]';
+SimHorizon = 100;
+x0 = [0 0 0.5 0.5]';
+x_ref = [4.7, 0.5, 6.0, 0.0]';
+
 x = zeros(4, SimHorizon + 1);
 u = zeros(2, SimHorizon - 1);
 
 xk = x0;
 x(:, 1) = x0;
 
-[uk, objective, feasible] = mpc.eval(xk - x_ref)
-
+[xs, us] = computeSteadyState(x_ref, params)
+[uk, objective, feasible] = mpc.eval(xk-xs, xs, us)
 for k = 2:SimHorizon+1
-    [uk, objective, feasible] = mpc.eval(xk - x_ref);
-    xk = Ad * xk + Bd * uk;
+    [uk, objective, feasible] = mpc.eval(xk-xs, xs, us);
+    xk = Ad * xk + Bd * (uk + us);
     x(:, k) = xk;
-    u(:, k-1) = uk;
+    u(:, k-1) = uk + us;
 end
 
 figure;
