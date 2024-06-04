@@ -1,4 +1,4 @@
-function [params] = generate_params()
+function [params] = generate_params(Q, R)
     % Define System Dynamics
     params = struct();
     Ts = 1/30;
@@ -35,15 +35,15 @@ function [params] = generate_params()
 
     % Define constraints
     params.constraints.Hx = [
-        0 0 1 0;
-        0 0 -1 0
+        0 -1 0 0;
+        0 1 0 0
     ];
 
-    yUpperBound = 2;
-    yLowerBound = -2;
+    Vmax = 4.5;
+    Vmin = -4.5;
     params.constraints.hx = [
-        yUpperBound;
-        -yLowerBound
+        -Vmin;
+        Vmax
     ];
 
     params.constraints.Hu = [
@@ -63,4 +63,6 @@ function [params] = generate_params()
         ayUpperBound;
         -ayLowerBound
     ];
+
+    [params.constraints.H, params.constraints.h] = computeInvariantSet(Q, R, params.model.Ad, params.model.Bd, params.constraints.Hx, params.constraints.hx, params.constraints.Hu, params.constraints.hu);
 end
